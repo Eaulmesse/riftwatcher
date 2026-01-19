@@ -1,0 +1,40 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+model GameSession {
+  id           String      @id @default(uuid())
+  startTime    DateTime
+  endTime      DateTime?
+  summonerName String
+  champion     String?
+  result       String?
+  snapshots    Snapshot[]
+  events       GameEvent[]
+}
+
+model Snapshot {
+  id          String      @id @default(uuid())
+  sessionId   String
+  timestamp   DateTime
+  level       Int
+  currentGold Int
+  totalGold   Int
+  cs          Int?
+  session     GameSession @relation(fields: [sessionId], references: [id])
+}
+
+model GameEvent {
+  id        String      @id @default(uuid())
+  sessionId String
+  timestamp DateTime
+  eventType String
+  eventData String
+  session   GameSession @relation(fields: [sessionId], references: [id])
+}

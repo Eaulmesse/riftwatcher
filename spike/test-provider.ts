@@ -1,4 +1,4 @@
-import { RiotLocalProvider } from '../src/services/riotLocalProvider';
+import { RiotLocalProvider } from '../src/services/RiotLocalProvider';
 
 console.log('🧪 Test du RiotLocalProvider\n');
 

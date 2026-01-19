@@ -1,5 +1,5 @@
 import { log } from 'console';
-import { RiotApiClient } from '../src/services/riotApiClient';
+import { RiotApiClient } from '../src/services/RiotApiClient';
 
 async function testClient() {
   console.log('🧪 Test du RiotApiClient\n');
