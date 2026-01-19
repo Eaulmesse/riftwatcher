@@ -33,11 +33,42 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-ipcMain.handle('get-game-state', async () => {
-  if(riotLocalProvider) {
+// IPC Handlers pour RiftWatcher
+ipcMain.handle('game:get-state', async () => {
+  if (riotLocalProvider) {
     return riotLocalProvider.getCurrentState();
   }
   return 'OFFLINE';
+});
+
+ipcMain.handle('game:get-active-player', async () => {
+  if (!riotLocalProvider) return null;
+  try {
+    return await riotLocalProvider.getActivePlayerData();
+  } catch (error) {
+    console.error('Erreur get-active-player:', error);
+    return null;
+  }
+});
+
+ipcMain.handle('game:get-current-session', async () => {
+  if (!riotLocalProvider) return null;
+  try {
+    return riotLocalProvider.getCurrentSessionData();
+  } catch (error) {
+    console.error('Erreur get-current-session:', error);
+    return null;
+  }
+});
+
+ipcMain.handle('game:get-session-history', async (_event, limit = 10) => {
+  if (!riotLocalProvider) return [];
+  try {
+    return await riotLocalProvider.getSessionHistoryData(limit);
+  } catch (error) {
+    console.error('Erreur get-session-history:', error);
+    return [];
+  }
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -143,12 +174,20 @@ app
   .whenReady()
   .then(() => {
     riotLocalProvider = new RiotLocalProvider();
-    riotLocalProvider.on('StateChanged', (event, data) => {
+    
+    // Écouter les changements d'état et les envoyer au renderer
+    riotLocalProvider.on('stateChanged', (data) => {
       console.log(`🔄 État changé: ${data.oldState} -> ${data.newState}`);
+      if (mainWindow) {
+        mainWindow.webContents.send('game:state-changed', data);
+      }
     });
+    
     riotLocalProvider.start();
-    console.log('RiftWatcher Engine started');
+    console.log('🚀 RiftWatcher Engine started');
+    
     createWindow();
+    
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.

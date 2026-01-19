@@ -1,40 +1,44 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import icon from '../../assets/icon.svg';
+import { useGameState } from './hooks/useGameState';
+import { GameStatus } from './components/GameStatus';
+import { LiveStats } from './components/LiveStats';
 import './App.css';
 
-function Hello() {
+function Dashboard() {
+  const { gameState, playerData, loading } = useGameState();
+
+  if (loading) {
+    return (
+      <div className="loading">
+        <div className="spinner" />
+        <p>Chargement de RiftWatcher...</p>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <div className="Hello">
-        <img width="200" alt="icon" src={icon} />
-      </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="folded hands">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
+    <div className="dashboard">
+      <header className="header">
+        <h1 style={{ margin: 0, fontSize: '32px', color: '#0AC8B9' }}>
+          🎮 RiftWatcher
+        </h1>
+        <GameStatus state={gameState} />
+      </header>
+
+      <main className="main-content">
+        {gameState === 'IN_GAME' && playerData ? (
+          <LiveStats player={playerData} />
+        ) : (
+          <div className="offline-message">
+            <div style={{ fontSize: '64px', marginBottom: '16px' }}>⚔️</div>
+            <h2>En attente de partie...</h2>
+            <p style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+              Lancez League of Legends et démarrez une partie pour voir vos
+              statistiques en temps réel
+            </p>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
@@ -43,7 +47,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Hello />} />
+        <Route path="/" element={<Dashboard />} />
       </Routes>
     </Router>
   );

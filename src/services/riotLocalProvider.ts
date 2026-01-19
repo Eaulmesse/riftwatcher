@@ -90,6 +90,18 @@ class RiotLocalProvider extends EventEmitter {
     getCurrentState(): GameState {
         return this.currentState;
     }
+
+    async getActivePlayerData() {
+        return this.client.getActivePlayer();
+    }
+    
+    getCurrentSessionData() {
+        return this.sessionService.getCurrentSession();
+    }
+    
+    async getSessionHistoryData(limit: number = 10) {
+        return this.sessionService.getSessionHistory(limit);
+    }
 }
 
 export { RiotLocalProvider };
